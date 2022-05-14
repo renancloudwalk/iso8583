@@ -6,7 +6,6 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
-
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub enum FieldCharType {
     Iso8583_n,
@@ -19,8 +18,8 @@ pub enum FieldCharType {
     Iso8583_anp,
     Iso8583_b,
     ISO8583_z,
-    Iso8583_bmp,
     Iso8583_bmps,
+    Iso8583_mti,
 }
 
 impl FieldCharType {
@@ -36,8 +35,8 @@ impl FieldCharType {
             "anp" => Some(FieldCharType::Iso8583_anp),
             "b" => Some(FieldCharType::Iso8583_b),
             "z" => Some(FieldCharType::ISO8583_z),
-            "bmp" => Some(FieldCharType::Iso8583_bmp),
             "bmps" => Some(FieldCharType::Iso8583_bmps),
+            "mti" => Some(FieldCharType::Iso8583_mti),
             _ => None,
         }
     }
@@ -54,9 +53,8 @@ impl FieldCharType {
             &FieldCharType::Iso8583_anp => "anp",
             &FieldCharType::Iso8583_b => "b",
             &FieldCharType::ISO8583_z => "z",
-            &FieldCharType::Iso8583_bmp => "bmp",
             &FieldCharType::Iso8583_bmps => "bmps",
-
+            &FieldCharType::Iso8583_mti => "mti",
         }
     }
 }
@@ -121,21 +119,16 @@ impl IsoField {
 }
 
 /// Field Payload
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct FieldPayload {
+    pub iso_field_label: Option<String>,
     pub exist: bool,
     pub index: usize,
     pub len: usize,
-    pub new_payload: Option<Vec<u8>>,
 }
 
-/// Field Payload impl
 impl FieldPayload {
-    pub fn get_new_payload_length(&self) -> usize {
-        if let Some(ref m) = self.new_payload {
-            return m.len();
-        } else {
-            return 0;
-        }
+    pub fn iso_field_value<'a>(&self, buffer: &'a [u8]) -> Vec<u8> {
+        buffer[self.index..self.index + self.len].to_vec()
     }
 }
